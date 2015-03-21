@@ -1,6 +1,6 @@
 #Rollercoaster Game Tutorial
 
-In this short tutorial we are going to create a simple game, with a rollercoaster cart going along a pathway(rail), implmenting the basics to draw the rail and the movement physics. This little tutorial can be used to create games similar to the ones published on [rollercoaster games]. The tutorial is based on [actionscript.org examples][1].
+In this short tutorial we are going to create a simple game, with a rollercoaster cart going along a pathway(rail), implmenting the basics to draw the rail and the movement physics. This little tutorial can be used to create games similar to the ones published on [rollercoaster games]. The tutorial is based on actionscript.org [examples][1].
 
 1. Define Rollercoaster Track Drawing Segments
 2. Build the Rail Using Bezier Curves
