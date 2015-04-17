@@ -61,6 +61,7 @@ package part1
 				currentPoint = new Point(currentPoint.x + SEGMENT_LENGTH * Math.cos(a), currentPoint.y+ SEGMENT_LENGTH * Math.sin(a));
 				segmentPoints.push(currentPoint);
 				
+				this.graphics.lineTo(segmentPoints[segmentPoints.length-2].x, segmentPoints[segmentPoints.length-2].y);
 				this.graphics.lineTo(currentPoint.x, currentPoint.y);
 			}
 		}
