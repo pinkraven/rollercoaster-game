@@ -1,4 +1,4 @@
-package part1
+package
 {
 	import flash.display.MovieClip;
 	import flash.display.Sprite;
