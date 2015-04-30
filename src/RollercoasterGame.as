@@ -1,10 +1,12 @@
-package
+package 
 {
 	import flash.display.MovieClip;
 	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.events.MouseEvent;
 	import flash.geom.Point;
+	import bezier.BezierAssist;
+	import bezier.TrajectoryPoint;
 	
 	public class RollercoasterGame extends Sprite
 	{
@@ -24,6 +26,7 @@ package
 		// when true it mean the mouse button is down and the player draws segments
 		private var drawing:Boolean = false;
 		
+		private var bezierLines:Vector.<TrajectoryPoint>;
 		
 		public function RollercoasterGame()
 		{	
@@ -34,6 +37,7 @@ package
 		
 		private function mouseDown(e:Event):void {
 			segmentPoints = [];
+			
 			
 			drawing = true;
 			
@@ -73,7 +77,79 @@ package
 			this.graphics.lineTo(mouseX, mouseY);
 			
 			drawing = false;
+			
+			generateBezier();
 		}
-	}
+		
+		private function generateBezier():void
+		{
+			bezierLines = new Vector.<TrajectoryPoint>();
+			
+			var p1:Point, p2:Point, p3:Point, mid1:Point, mid2:Point;
+			
+			p1 = BezierAssist.linearBezierPoint([segmentPoints[0], segmentPoints[1]], 0.5);
+						
+			bezierLines.push( new TrajectoryPoint(segmentPoints[0].x, segmentPoints[0].y));// {x: segmentPoints[0].x, y: segmentPoints[0].y});
+			
+			for (var i:Number=0; i < segmentPoints.length-2; i++) 
+			{
+				p1 = segmentPoints[i];
+				p2 = segmentPoints[i+1];
+				p3 = segmentPoints[i+2];
+				mid1 = BezierAssist.linearBezierPoint([p1, p2], 0.5);
+				mid2 = BezierAssist.linearBezierPoint([p2, p3], 0.5);
+				
+				bezierLines = bezierLines.concat(bezier([mid1, p2, mid2], 20));
+				
+				track.graphics.lineTo(p3.x, p3.y);
+			}
+			
+			bezierLines.push(new TrajectoryPoint(p3.x, p3.y) );
+
+			this.graphics.lineStyle(1,0x000000);
+			this.graphics.moveTo(bezierLines[0].x, bezierLines[0].y);
+			for each (var p:TrajectoryPoint in bezierLines)
+				this.graphics.lineTo(p.x, p.y);
+
+			track.graphics.lineTo(p3.x, p3.y);
+			
+			for (i=0; i < bezierLines.length-1; i++) {
+				var a:TrajectoryPoint = bezierLines[i];
+				var b:TrajectoryPoint = bezierLines[i+1];
+				a.dx = b.x - a.x;
+				a.dy = b.y - a.y;
+				a.a = Math.atan2(a.dy, a.dx);
+			}
+			
+			bezierLines.pop();
+
+		}
+		
+		
+		private function bezier(p:Array, segments:Number):Vector.<TrajectoryPoint> {
+			if (segments < 1) null;
+			
+			if (p.length < 2 || p.length > 4) 
+				return null;
+			
+			var points:Vector.<TrajectoryPoint> = new Vector.<TrajectoryPoint>();
+			
+			var dt:Number = 1/segments;
+			var s:Point = BezierAssist.bezierPoint(p, 0);
+			this.graphics.moveTo(s.x, s.y);
+			
+			for (var i:Number=1; i<=segments; i++) 
+			{
+				s = BezierAssist.bezierPoint(p, i*dt);
+				
+				points.push( new TrajectoryPoint( s.x, s.y) );
+				
+				this.graphics.lineTo(s.x, s.y);
+			}
+			
+			return points;
+		}
 		
 	}
+	
+}
