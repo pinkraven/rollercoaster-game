@@ -99,13 +99,12 @@ Now we have to take in consideration what happens when the mouse is up. We add t
 			drawing = false;
 		}
 		
-In the next part of this tutorial we are going to use [Bezier curves] to paint the track and determine the trajectory of the rollercoaster cart.
 
 ###Build the Rail Using Bezier Curves
 
 In this part of the tutorial we use [Bezier curves] to paint the track and determine the trajectory of the rollercoaster cart. Bezier curves are parametric curves(paths) which are used to smooth curves and segments. Along with the smoothness affine transformations such as translation and rotation can be applied on the curves which makes them extremely useful in animations.
 
-For our case we create 2 new classes BezierAssist and TrajectoryPoint(at this stage the trajectory point keeps only a point, in the next part it will handle the rotation and the acceleration information). The BezzierAssist contains the encapsulate the logic to generate a bezier curve for a group of points/segments. If we have 2 points it is called linear, for 3 quadratic and for 4 points it's cubic(we don't use the last one). The method above returns the coordinates of the bezier point at the "moment" t(we don't generate an actual curve but just a set of points and t represents the actual step to generate the respective point). The Bezier algorithm is implemented in linearBezierPoint and quadraticBezierPoint. Just take a look on the BezzierAssist class to see it.
+For our case we create 2 new classes [BezierAssist] and [TrajectoryPoint](at this stage the trajectory point keeps only a point, in the next part it will handle the rotation and the acceleration information). The BezzierAssist contains the encapsulate the logic to generate a bezier curve for a group of points/segments. If we have 2 points it is called linear, for 3 quadratic and for 4 points it's cubic(we don't use the last one). The method above returns the coordinates of the bezier point at the "moment" t(we don't generate an actual curve but just a set of points and t represents the actual step to generate the respective point). The Bezier algorithm is implemented in linearBezierPoint and quadraticBezierPoint. Just take a look on the [BezzierAssist] class to see it.
 
 		public static function bezierPoint(p:Array, t:Number):Point 
 		{
@@ -199,3 +198,5 @@ The changes in the main class are not so complex. We just add a new vector membe
 [rollercoaster games]:http://rollercoastergames.net
 [1]::http://www.actionscript.org/forums/showthread.php3?t=242191
 [Bezier curves]:http://en.wikipedia.org/wiki/B%C3%A9zier_curve
+[BezierAssist]:https://github.com/pinkraven/rollercoaster-game/blob/master/src/bezier/BezierAssist.as
+[TrajectoryPoint]:https://github.com/pinkraven/rollercoaster-game/blob/master/src/bezier/TrajectoryPoint.as
