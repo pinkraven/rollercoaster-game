@@ -26,6 +26,7 @@ package
 		// when true it mean the mouse button is down and the player draws segments
 		private var drawing:Boolean = false;
 		
+		// keeps the intermediate bezier points from the bezier curve
 		private var bezierLines:Vector.<TrajectoryPoint>;
 		
 		public function RollercoasterGame()
@@ -99,13 +100,14 @@ package
 				mid1 = BezierAssist.linearBezierPoint([p1, p2], 0.5);
 				mid2 = BezierAssist.linearBezierPoint([p2, p3], 0.5);
 				
-				bezierLines = bezierLines.concat(bezier([mid1, p2, mid2], 20));
+				bezierLines = bezierLines.concat(BezierAssist.bezier([mid1, p2, mid2], 20));
 				
 				track.graphics.lineTo(p3.x, p3.y);
 			}
 			
 			bezierLines.push(new TrajectoryPoint(p3.x, p3.y) );
 
+			// draw bezier curve
 			this.graphics.lineStyle(1,0x000000);
 			this.graphics.moveTo(bezierLines[0].x, bezierLines[0].y);
 			for each (var p:TrajectoryPoint in bezierLines)
@@ -126,29 +128,7 @@ package
 		}
 		
 		
-		private function bezier(p:Array, segments:Number):Vector.<TrajectoryPoint> {
-			if (segments < 1) null;
-			
-			if (p.length < 2 || p.length > 4) 
-				return null;
-			
-			var points:Vector.<TrajectoryPoint> = new Vector.<TrajectoryPoint>();
-			
-			var dt:Number = 1/segments;
-			var s:Point = BezierAssist.bezierPoint(p, 0);
-			this.graphics.moveTo(s.x, s.y);
-			
-			for (var i:Number=1; i<=segments; i++) 
-			{
-				s = BezierAssist.bezierPoint(p, i*dt);
-				
-				points.push( new TrajectoryPoint( s.x, s.y) );
-				
-				this.graphics.lineTo(s.x, s.y);
-			}
-			
-			return points;
-		}
+
 		
 	}
 	

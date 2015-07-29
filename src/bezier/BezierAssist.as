@@ -46,6 +46,25 @@ package bezier
 			return null;
 		}
 		
-		
+		static public function bezier(p:Array, segments:Number):Vector.<TrajectoryPoint> {
+			if (segments < 1) null;
+			
+			if (p.length < 2 || p.length > 4) 
+				return null;
+			
+			var points:Vector.<TrajectoryPoint> = new Vector.<TrajectoryPoint>();
+			
+			var dt:Number = 1/segments;
+			var s:Point = BezierAssist.bezierPoint(p, 0);
+			
+			for (var i:Number=1; i<=segments; i++) 
+			{
+				s = BezierAssist.bezierPoint(p, i*dt);
+				
+				points.push( new TrajectoryPoint( s.x, s.y) );
+			}
+			
+			return points;
+		}		
 	}
 }

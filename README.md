@@ -101,6 +101,101 @@ Now we have to take in consideration what happens when the mouse is up. We add t
 		
 In the next part of this tutorial we are going to use [Bezier curves] to paint the track and determine the trajectory of the rollercoaster cart.
 
+###Build the Rail Using Bezier Curves
+
+In this part of the tutorial we use [Bezier curves] to paint the track and determine the trajectory of the rollercoaster cart. Bezier curves are parametric curves(paths) which are used to smooth curves and segments. Along with the smoothness affine transformations such as translation and rotation can be applied on the curves which makes them extremely useful in animations.
+
+For our case we create 2 new classes BezierAssist and TrajectoryPoint(at this stage the trajectory point keeps only a point, in the next part it will handle the rotation and the acceleration information). The BezzierAssist contains the encapsulate the logic to generate a bezier curve for a group of points/segments. If we have 2 points it is called linear, for 3 quadratic and for 4 points it's cubic(we don't use the last one). The method above returns the coordinates of the bezier point at the "moment" t(we don't generate an actual curve but just a set of points and t represents the actual step to generate the respective point). The Bezier algorithm is implemented in linearBezierPoint and quadraticBezierPoint. Just take a look on the BezzierAssist class to see it.
+
+		public static function bezierPoint(p:Array, t:Number):Point 
+		{
+			if (p.length == 2) 
+				return linearBezierPoint(p, t);		
+			if (p.length == 3) 
+				return quadraticBezierPoint(p, t);
+			if (p.length == 4) 
+				return quadraticBezierPoint(p,t);//cubicBezierPoint(p, t);
+			
+			return null;
+		}
+
+Now that we have the methods to generate an intermediate point on Bezier curve we need the method to give us all the points for a segment:
+
+		static public function bezier(p:Array, segments:Number):Vector.<TrajectoryPoint> {
+			if (segments < 1) null;
+			
+			if (p.length < 2 || p.length > 4) 
+				return null;
+			
+			var points:Vector.<TrajectoryPoint> = new Vector.<TrajectoryPoint>();
+			
+			var dt:Number = 1/segments;
+			var s:Point = BezierAssist.bezierPoint(p, 0);
+			
+			for (var i:Number=1; i<=segments; i++) 
+			{
+				s = BezierAssist.bezierPoint(p, i*dt);
+				
+				points.push( new TrajectoryPoint( s.x, s.y) );
+			}
+			
+			return points;
+		}		
+
+The changes in the main class are not so complex. We just add a new vector member to keep all the intermediate bezier points of the curve:
+
+
+		private var bezierLines:Vector.<TrajectoryPoint>;
+		
+... along with the method to generate the intermediate bezier points. This method might be latter on split in 2 or more methods but for the moment we keep it as it is:
+
+		private function generateBezier():void
+		{
+			bezierLines = new Vector.<TrajectoryPoint>();
+			
+			var p1:Point, p2:Point, p3:Point, mid1:Point, mid2:Point;
+			
+			p1 = BezierAssist.linearBezierPoint([segmentPoints[0], segmentPoints[1]], 0.5);
+						
+			bezierLines.push( new TrajectoryPoint(segmentPoints[0].x, segmentPoints[0].y));// {x: segmentPoints[0].x, y: segmentPoints[0].y});
+			
+			for (var i:Number=0; i < segmentPoints.length-2; i++) 
+			{
+				p1 = segmentPoints[i];
+				p2 = segmentPoints[i+1];
+				p3 = segmentPoints[i+2];
+				mid1 = BezierAssist.linearBezierPoint([p1, p2], 0.5);
+				mid2 = BezierAssist.linearBezierPoint([p2, p3], 0.5);
+				
+				bezierLines = bezierLines.concat(BezierAssist.bezier([mid1, p2, mid2], 20));
+				
+				track.graphics.lineTo(p3.x, p3.y);
+			}
+			
+			bezierLines.push(new TrajectoryPoint(p3.x, p3.y) );
+
+			// draw bezier curve
+			this.graphics.lineStyle(1,0x000000);
+			this.graphics.moveTo(bezierLines[0].x, bezierLines[0].y);
+			for each (var p:TrajectoryPoint in bezierLines)
+				this.graphics.lineTo(p.x, p.y);
+
+			track.graphics.lineTo(p3.x, p3.y);
+			
+			for (i=0; i < bezierLines.length-1; i++) {
+				var a:TrajectoryPoint = bezierLines[i];
+				var b:TrajectoryPoint = bezierLines[i+1];
+				a.dx = b.x - a.x;
+				a.dy = b.y - a.y;
+				a.a = Math.atan2(a.dy, a.dx);
+			}
+			
+			bezierLines.pop();
+
+		}
+
+
+		
 [rollercoaster games]:http://rollercoastergames.net
 [1]::http://www.actionscript.org/forums/showthread.php3?t=242191
 [Bezier curves]:http://en.wikipedia.org/wiki/B%C3%A9zier_curve
